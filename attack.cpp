@@ -8,15 +8,23 @@ using namespace std;
 unsigned char *iterative_hash(unsigned char *plain_text,unsigned char *h)
 {
     int i;
-    for(i = 0 ; i < (strlen((char *)plain_text)/128) ; i++)
+
+    int length_message = strlen((char *)plain_text); 
+    int no_of_blocks = length_message/16;
+    
+    
+    for(i = 0 ; i < no_of_blocks ; i++)
     {
-        string message_block(i*128,i*(128)*(2)-1);
+        string message_block(plain_text+i*16,plain_text+(i+1)*(16));
+        cout<<message_block<<endl;
         //h = encrypt(plain_text,strlen((char *)plain_text),h);
+        
     }
-    if((strlen((char *)plain_text)%128) != 0)
+    if( length_message % 16 != 0)
     {
-        int length_message = (strlen((char *)plain_text));
-        string message_block(i*128,length_message);
+        cout<<"Last block is not 128bits"<<endl;
+        string message_block(plain_text+i*16,plain_text+length_message);
+        cout<<message_block<<endl;
         //pad(message_block);
         //h = encrypt(plain_text,strlen((char *)plain_text,h));
     }
@@ -33,7 +41,7 @@ int main()
     //cout<<strlen((char *)h);
 
     hash_value = iterative_hash(plain_text, h);
-    cout<<hash_value;
+    cout<<"Final hash value is"<<hash_value<<endl;
 
     
     return 0;
