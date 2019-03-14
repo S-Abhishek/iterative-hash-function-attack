@@ -15,8 +15,7 @@ void handleErrors(void)
   abort();
 }
 
-int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *iv, unsigned char *ciphertext)
-{
+int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *iv, unsigned char *ciphertext){
   EVP_CIPHER_CTX *ctx;
 
   int len;
@@ -45,9 +44,8 @@ int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, uns
   return ciphertext_len;
 }
 
-int decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key,
-  unsigned char *iv, unsigned char *plaintext)
-{
+int decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key, unsigned char *iv, unsigned char *plaintext){
+  
   EVP_CIPHER_CTX *ctx;
 
   int len;
@@ -108,30 +106,31 @@ unsigned char* iterative_hash(unsigned char *plain_text, unsigned char *initial_
 
     unsigned char* mblock = new unsigned char[16]();
     
-    copy(initial_hash, initial_hash + 4, h0);
+    copy(initial_hash, initial_hash + HASH_SIZE/8, h0);
     for(i = 0 ; i < no_of_blocks ; i++)
     {
         copy(plain_text + i*16, plain_text + (i+1)*16, mblock);
-
         // Padding the input to 128 bits
-        h0_temp = pad(h0, 4, 16);
+        h0_temp = pad(h0, HASH_SIZE/8, 16);
 
         // Encryption with the padded values
         encrypt(mblock, strlen((char *)mblock), h0_temp, iv, h1_temp );
 
-        // Dropping bits except the 1st 32
-        copy(h1_temp, h1_temp + 4, h0);
+        // Dropping bits 
+        copy(h1_temp, h1_temp + HASH_SIZE/8, h0);
     }
 
     delete iv;
     delete h1;
+    delete h0_temp;
+    delete h1_temp;
     delete mblock;
     
     return h0;
 }
 
-int main (void)
-{
+int main (void){
+
   unsigned char* plaintext = (unsigned char *)"123458457845847577676645678";
   unsigned char* initial_hash = (unsigned char *)"aaaa";
   
