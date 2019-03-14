@@ -6,6 +6,8 @@
 #include "utils.h"
 using namespace std;
 
+#define HASH_SIZE 4
+
 // Pad given plain text of length l to k bytes
 unsigned char* pad(unsigned char* plain_text, int l, int k){
 
