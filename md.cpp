@@ -153,7 +153,7 @@ void brute_force(unsigned char *hash1, unsigned char *hash2){
     
 
     map<string,string> collision;
-    for(long long i = 0 ; i < (1<<2) ; i++)
+    for(long long i = 0 ; i < ((long long)1<<32) ; i++)
     {
         unsigned char *plaintext = characters(i);
         string plaintext_s(reinterpret_cast<char *>(plaintext));
@@ -164,11 +164,11 @@ void brute_force(unsigned char *hash1, unsigned char *hash2){
         pos1 = collision.find(h1_s);
         if(pos1 == collision.end())
         {
-          collision.insert(h1_s,plaintext_s);
+          collision[h1_s] = plaintext_s;
         }
         else
         {
-          cout<<"Collision found msg1:"<<plaintext<<" msg2:"<<pos1->second<<" hash: "<<h1_s;
+          cout<<"Collision found msg1:"<<plaintext<<" msg2:"<<pos1->second<<" hash: "<<h1_s<<endl;
           break;
         }
         
@@ -178,11 +178,11 @@ void brute_force(unsigned char *hash1, unsigned char *hash2){
         pos2 = collision.find(h2_s);
         if(pos2 == collision.end())
         {
-          collision.insert(h2_s,plaintext_s);
+          collision[h2_s]=plaintext_s;
         }
         else
         {
-          cout<<"Collision found msg1:"<<pos2->second<<" msg2:"<<plaintext<<" hash: "<<h2_s;
+          cout<<"Collision found msg1:"<<pos2->second<<" msg2:"<<plaintext<<" hash: "<<h2_s<<endl;
           break;
         }
         

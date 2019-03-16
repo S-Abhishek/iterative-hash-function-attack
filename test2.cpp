@@ -35,6 +35,6 @@ int main()
     string baa = "asda";
     lala.insert(abs,baa);
 
-    cout<<lala["as"];
+    cout<<lala[abs];
     
 }
