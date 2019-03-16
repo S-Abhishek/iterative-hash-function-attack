@@ -168,7 +168,13 @@ void brute_force(unsigned char *hash1, unsigned char *hash2){
         }
         else
         {
-          cout<<"Collision found msg1:"<<plaintext<<" msg2:"<<pos1->second<<" hash: "<<h1_s<<endl;
+          cout<<"Collision found:"<<endl;
+          BIO_dump_fp (stdout, plaintext_s.c_str(), 4);
+          cout<<endl;
+          BIO_dump_fp (stdout, (pos1->second).c_str(), 4);
+          cout<<endl;
+          BIO_dump_fp (stdout, h1_s.c_str(), 4);
+          cout<<endl;
           break;
         }
         
@@ -182,8 +188,15 @@ void brute_force(unsigned char *hash1, unsigned char *hash2){
         }
         else
         {
-          cout<<"Collision found msg1:"<<pos2->second<<" msg2:"<<plaintext<<" hash: "<<h2_s<<endl;
+          cout<<"Collision found:"<<endl;
+          BIO_dump_fp (stdout, (pos2->second).c_str(), 4);
+          cout<<endl;
+          BIO_dump_fp (stdout, plaintext_s.c_str(), 4);
+          cout<<endl;
+          BIO_dump_fp (stdout, h2_s.c_str(), 4);
+          cout<<endl;
           break;
+          
         }
         
 
