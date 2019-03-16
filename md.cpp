@@ -5,9 +5,10 @@
 #include <cstring>
 using namespace std;
 
-// in bits
-#define HASH_SIZE 32
-#define K 16
+// in bytes
+#define HASH_SIZE 4
+#define K 2
+#define MSG_BLOCK 4
 
 void handleErrors(void)
 {
@@ -93,12 +94,12 @@ unsigned char* pad(unsigned char* plain_text, int l, int k){
 unsigned char* iterative_hash(unsigned char *plain_text, unsigned char *initial_hash){
     
     int i;
-    int length_message = strlen((char *)plain_text); 
-    int no_of_blocks = length_message/16;
+    int length_message = strlen((char *)plain_text);
+    int no_of_blocks = length_message/MSG_BLOCK;
 
     unsigned char* iv = new unsigned char[16]();
-    unsigned char* h0 = new unsigned char[HASH_SIZE/8]();
-    unsigned char* h1 = new unsigned char[HASH_SIZE/8]();
+    unsigned char* h0 = new unsigned char[HASH_SIZE]();
+    unsigned char* h1 = new unsigned char[HASH_SIZE]();
 
     // Buffers to hold the padded input and obtained output
     unsigned char* h0_temp = new unsigned char[16]();
@@ -106,18 +107,20 @@ unsigned char* iterative_hash(unsigned char *plain_text, unsigned char *initial_
 
     unsigned char* mblock = new unsigned char[16]();
     
-    copy(initial_hash, initial_hash + HASH_SIZE/8, h0);
+    copy(initial_hash, initial_hash + HASH_SIZE, h0);
     for(i = 0 ; i < no_of_blocks ; i++)
     {
-        copy(plain_text + i*16, plain_text + (i+1)*16, mblock);
+        copy(plain_text + i*MSG_BLOCK, plain_text + (i+1)*MSG_BLOCK, mblock);
+
         // Padding the input to 128 bits
-        h0_temp = pad(h0, HASH_SIZE/8, 16);
+        h0_temp = pad(h0, HASH_SIZE, 16);
 
         // Encryption with the padded values
-        encrypt(mblock, strlen((char *)mblock), h0_temp, iv, h1_temp );
+        encrypt(mblock, 16, h0_temp, iv, h1_temp );
 
         // Dropping bits 
-        copy(h1_temp, h1_temp + HASH_SIZE/8, h0);
+        copy(h1_temp, h1_temp + HASH_SIZE, h0);
+        BIO_dump_fp (stdout, (const char *)h0, 4);
     }
 
     delete iv;
@@ -131,10 +134,10 @@ unsigned char* iterative_hash(unsigned char *plain_text, unsigned char *initial_
 
 int main (void){
 
-  unsigned char* plaintext = (unsigned char *)"123458457845847577676645678";
+  unsigned char* plaintext = (unsigned char *)"12345845784534757767664566834";
   unsigned char* initial_hash = (unsigned char *)"aaaa";
   
-  plaintext = pad(plaintext, strlen ((char *)plaintext), 16);
+  plaintext = pad(plaintext, strlen ((char *)plaintext), 4);
   BIO_dump_fp (stdout, (const char *)iterative_hash(plaintext, initial_hash), 4);
 
 }
