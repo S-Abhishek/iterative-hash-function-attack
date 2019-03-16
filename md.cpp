@@ -3,6 +3,8 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 #include <cstring>
+#include <array>
+#include <map>
 using namespace std;
 
 // in bytes
@@ -131,13 +133,75 @@ unsigned char* iterative_hash(unsigned char *plain_text, unsigned char *initial_
     
     return h0;
 }
+unsigned char* characters(long long b){
+
+    unsigned char* str = new unsigned char[4]();
+    str[3] = (char) b & 0xFF;
+    b = b >> 8;
+    str[2] = (char) b & 0xFF;
+    b = b >> 8;
+    str[1] = (char) b & 0xFF;
+    b = b >> 8;
+    str[0] = (char) b & 0xFF;
+    b = b >> 8;
+    return str;
+}
+
+
+
+void brute_force(unsigned char *hash1, unsigned char *hash2){
+    
+
+    map<string,string> collision;
+    for(long long i = 0 ; i < (1<<2) ; i++)
+    {
+        unsigned char *plaintext = characters(i);
+        string plaintext_s(reinterpret_cast<char *>(plaintext));
+        plaintext = pad(plaintext, strlen ((char *)plaintext), 4);
+        unsigned char *h1 = iterative_hash(plaintext, hash1); 
+        string h1_s(reinterpret_cast<char *>(h1));
+        collision::const_iterator pos1 = collision.find("string");
+        if(pos1 == collision.end())
+        {
+          collision.insert(h1_s,plaintext_s);
+        }
+        else
+        {
+          cout<<"Collision found msg1:"<<plaintext<<" msg2:"<<pos1->second<<" hash: "<<h1_s;
+          break;
+        }
+        
+        unsigned char *h2 = (unsigned char *)iterative_hash(plaintext, hash2); 
+        string h2_s(reinterpret_cast<char *>(h2));
+        collision::const_iterator pos2 = collision.find("string");
+        if(pos2 == collision.end())
+        {
+          collision.insert(h2_s,plaintext_s);
+        }
+        else
+        {
+          cout<<"Collision found msg1:"<<pos2->second<<" msg2:"<<plaintext<<" hash: "<<h2_s;
+          break;
+        }
+        
+
+
+    }
+
+    
+}
 
 int main (void){
 
-  unsigned char* plaintext = (unsigned char *)"12345845784534757767664566834";
-  unsigned char* initial_hash = (unsigned char *)"aaaa";
+  //unsigned char* plaintext = (unsigned char *)"12345845784534757767664566834";
+  //unsigned char* initial_hash = (unsigned char *)"aaaa";
   
-  plaintext = pad(plaintext, strlen ((char *)plaintext), 4);
-  BIO_dump_fp (stdout, (const char *)iterative_hash(plaintext, initial_hash), 4);
+  //plaintext = pad(plaintext, strlen ((char *)plaintext), 4);
+  //BIO_dump_fp (stdout, (const char *)iterative_hash(plaintext, initial_hash), 4);
+
+  unsigned char *hash1 = (unsigned char *)"abcd";
+  unsigned char *hash2 = (unsigned char *)"efgh";
+  brute_force(hash1,hash2);
+
 
 }
