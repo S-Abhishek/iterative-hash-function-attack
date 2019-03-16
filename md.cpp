@@ -160,7 +160,8 @@ void brute_force(unsigned char *hash1, unsigned char *hash2){
         plaintext = pad(plaintext, strlen ((char *)plaintext), 4);
         unsigned char *h1 = iterative_hash(plaintext, hash1); 
         string h1_s(reinterpret_cast<char *>(h1));
-        collision::const_iterator pos1 = collision.find("string");
+        map<string,string>::iterator pos1;
+        pos1 = collision.find(h1_s);
         if(pos1 == collision.end())
         {
           collision.insert(h1_s,plaintext_s);
@@ -173,7 +174,8 @@ void brute_force(unsigned char *hash1, unsigned char *hash2){
         
         unsigned char *h2 = (unsigned char *)iterative_hash(plaintext, hash2); 
         string h2_s(reinterpret_cast<char *>(h2));
-        collision::const_iterator pos2 = collision.find("string");
+        map<string,string>::iterator pos2;
+        pos2 = collision.find(h2_s);
         if(pos2 == collision.end())
         {
           collision.insert(h2_s,plaintext_s);
