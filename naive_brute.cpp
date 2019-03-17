@@ -156,98 +156,89 @@ void GotoLine(fstream& file, unsigned int num){
 
 int main (void){
 
-//   unsigned char* plaintext = (unsigned char *)"12345845784534757767664566834";
-//   unsigned char* initial_hash = (unsigned char *)"aaaa";
-//   unsigned char* padded = new unsigned char[padded_length(strlen((char*)plaintext), 4)];
+  fstream in("hash.txt");
+  fstream out("hashout.txt", fstream::out);
 
-//   unsigned char* final_hash = new unsigned char[4]();
+  int num_hashes = 6;
+  int start_line = 1;
+  long long hashes[num_hashes];
 
-//   pad(plaintext, strlen ((char *)plaintext), 4, padded);
-//   iterative_hash(padded, initial_hash, final_hash);
-//   BIO_dump_fp (stdout, (const char*)final_hash, 4);
+  // Seeking to specified line
+  GotoLine(in, start_line);
 
-    fstream in("hash.txt");
-    fstream out("hashout.txt", fstream::out);
+  // Reading hashes from file and storing in array
+  long long hash;
+  for(int i = 0; i < num_hashes; i++){
+      in>>hash;
+      hashes[i] = hash;
+      cout<<hash<<endl;
+  }
+  long long one = 1;
 
-    int num_hashes = 6;
-    int start_line = 1;
-    long long hashes[num_hashes];
+  // export OMP_NUM_THREADS=<number of threads to use>.
+  #pragma omp parallel private(hash1, hash2)
+  {
 
-    // Seeking to specified line
-    GotoLine(in, start_line);
+    // Initiaze buffers for each thread here
+    unsigned char* hash1_buffer = new unsigned char[HASH_SIZE]();
+    unsigned char* hash2_buffer = new unsigned char[HASH_SIZE]();
 
-    // Reading hashes from file and storing in array
-    for(int i = 0; i < num_hashes; i++){
-        in>>hash1;
-        hashes[i] = hash1;
-        cout<<hash1<<endl;
-    }
-    long long one = 1;
+    unsigned char* final_hash = new unsigned char[HASH_SIZE]();
+    unsigned char* msg1_buffer = new unsigned char[MSG_BLOCK]();
+    unsigned char* msg2_buffer = new unsigned char[MSG_BLOCK]();
+    unsigned char* op1 = new unsigned char[HASH_SIZE]();
 
-    // export OMP_NUM_THREADS=<number of threads to use>.
-    #pragma omp parallel private(hash1, hash2)
-    {
+    // for each pair of hash
+    #pragma omp for
+    for(int i = 0; i < num_hashes; i += 2){
+        
+      long hash1 = hashes[i];
+      long hash2 = hashes[i+1];
+      characters(hash1, hash1_buffer);
+      characters(hash2, hash2_buffer);
 
-        // Initiaze buffers for each thread here
-        unsigned char* hash1_buffer = new unsigned char[HASH_SIZE]();
-        unsigned char* hash2_buffer = new unsigned char[HASH_SIZE]();
+      // Choosing a random message
+      long long msg1 = rand() + rand();
+      long long msg2;
+      characters(msg1, msg1_buffer);
 
-        unsigned char* final_hash = new unsigned char[HASH_SIZE]();
-        unsigned char* msg1_buffer = new unsigned char[MSG_BLOCK]();
-        unsigned char* msg2_buffer = new unsigned char[MSG_BLOCK]();
-        unsigned char* op1 = new unsigned char[HASH_SIZE]();
+      // Getting the hash of the message using initial hash hash1
+      iterative_hash(msg1_buffer, hash1_buffer, final_hash);
+      copy(final_hash, final_hash + HASH_SIZE, op1);
 
-        // for each pair of hash
-        #pragma omp for
-        for(int i = 0; i < num_hashes; i += 2){
-            
-            long hash1 = hashes[i];
-            long hash2 = hashes[i+1];
-            characters(hash1, hash1_buffer);
-            characters(hash2, hash2_buffer);
-
-            // Choosing a random message
-            long long msg1 = rand() + rand();
-            long long msg2;
-            characters(msg1, msg1_buffer);
-
-            // Getting the hash of the message using initial hash hash1
-            iterative_hash(msg1_buffer, hash1_buffer, final_hash);
-            copy(final_hash, final_hash + HASH_SIZE, op1);
-
-            // Try 2^32 random messages
-            for( long long j = 0; j < (one << 32); j++)
-            {
-                #pragma omp critical
-                if( j%1000 == 0 ) cout<<"current :"<<j<<endl;
-                
-                // Select another random message
-                do{
-                    msg2 = rand() + rand();
-                }
-                while(msg1 == msg2);
-                characters(msg2, msg2_buffer);
-
-                // Calculate hash for the message with initial hash hash2
-                iterative_hash(msg2_buffer, hash2_buffer, final_hash);
-                if(equal(op1, op1 + 4, final_hash )) break;
-            }
-
-            // Write results to file
-            #pragma omp critical
-            out<<hash1<<","<<msg1<<","<<hash2<<","<<msg2<<","<<op1<<endl;
-
+      // Try 2^32 random messages
+      for( long long j = 0; j < (one << 32); j++)
+      {
+        #pragma omp critical
+        if( j%1000 == 0 ) cout<<"current :"<<j<<endl;
+        
+        // Select another random message
+        do{
+            msg2 = rand() + rand();
         }
+        while(msg1 == msg2);
+        characters(msg2, msg2_buffer);
 
-        // Cleanup
-        delete hash1_buffer;
-        delete hash2_buffer;
-        delete msg1_buffer;
-        delete msg2_buffer;
-        delete final_hash;
-        delete op1;
+        // Calculate hash for the message with initial hash hash2
+        iterative_hash(msg2_buffer, hash2_buffer, final_hash);
+        if(equal(op1, op1 + 4, final_hash )) break;
+      }
+
+      // Write results to file
+      #pragma omp critical
+      out<<hash1<<","<<msg1<<","<<hash2<<","<<msg2<<","<<op1<<endl;
+
     }
-    
-    
+
+    // Cleanup
+    delete hash1_buffer;
+    delete hash2_buffer;
+    delete msg1_buffer;
+    delete msg2_buffer;
+    delete final_hash;
+    delete op1;
+  }
+  
+  
 
 }
