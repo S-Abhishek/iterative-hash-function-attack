@@ -6,6 +6,7 @@
 #include <fstream> 
 #include <limits>
 #include <omp.h>
+#include <random>
 using namespace std;
 
 // in bytes
@@ -174,9 +175,15 @@ int main (void){
       cout<<hash<<endl;
   }
   long long one = 1;
+  long long MAX = (long long) 1 << 32;
+
+  random_device mno;
+  mt19937 rng(mno());
+  uniform_int_distribution<mt19937::result_type> dist(0,MAX);
+  
 
   // export OMP_NUM_THREADS=<number of threads to use>.
-  #pragma omp parallel private(hash1, hash2)
+  #pragma omp parallel
   {
 
     // Initiaze buffers for each thread here
@@ -198,7 +205,7 @@ int main (void){
       characters(hash2, hash2_buffer);
 
       // Choosing a random message
-      long long msg1 = rand() + rand();
+      long long msg1 = dist(rng);
       long long msg2;
       characters(msg1, msg1_buffer);
 
@@ -214,7 +221,7 @@ int main (void){
         
         // Select another random message
         do{
-            msg2 = rand() + rand();
+            msg2 = dist(rng);
         }
         while(msg1 == msg2);
         characters(msg2, msg2_buffer);
