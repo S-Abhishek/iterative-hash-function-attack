@@ -228,26 +228,29 @@ int main (void){
         if( j%(one << 29) == 0 ) cout<<"current :"<<j<<endl;
         
         // Select another random message
-        do{
-            msg2 = dist(rng);
-        }
-        while(msg1 == msg2);
+        // do{
+        //     msg2 = dist(rng);
+        // }
+        // while(msg1 == msg2);
+        msg2 = j;
         characters(msg2, msg2_buffer);
 
         // Calculate hash for the message with initial hash hash2
         iterative_hash(msg2_buffer, hash2_buffer, final_hash);
-        if(equal(op1, op1 + 4, final_hash )) break;
+        if(equal(op1, op1 + 4, final_hash )){
+          
+          // Write results to file
+          #pragma omp critical
+          out<<hash1<<","<<msg1<<","<<hash2<<","<<msg2<<","<<op1<<endl;
 
-        //usleep(mc);
+          #pragma omp critical
+          cout<<hash1<<","<<msg1<<","<<hash2<<","<<msg2<<","<<op1<<endl;
+
+          break;
+        }
 
       }
 
-      // Write results to file
-      #pragma omp critical
-      out<<hash1<<","<<msg1<<","<<hash2<<","<<msg2<<","<<op1<<endl;
-
-      #pragma omp critical
-      cout<<hash1<<","<<msg1<<","<<hash2<<","<<msg2<<","<<op1<<endl;
     }
 
     // Cleanup
