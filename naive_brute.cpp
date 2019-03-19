@@ -174,7 +174,7 @@ int main (void){
   for(int i = 0; i < num_hashes; i++){
       in>>hash;
       hashes[i] = hash;
-      // cout<<hash<<endl;
+      cout<<hashes[i]<<endl;
   }
   long long one = 1;
   long long MAX = (long long) 1 << 32;
@@ -209,6 +209,9 @@ int main (void){
 
       // Choosing a random message
       long long msg1 = dist(rng);
+      
+      #pragma omp critical
+      cout<<"message chosen : "<<msg1<<endl;
 
       long long msg2;
       characters(msg1, msg1_buffer);
@@ -221,7 +224,7 @@ int main (void){
       for( long long j = 0; j < (one << 32); j++)
       {
         #pragma omp critical
-        if( j%(one << 29) == 0 ) cout<<"current :"<<j<<endl;
+        if( j%(one << 23) == 0 ) cout<<"current :"<<j<<endl;
         
         // Select another random message
         // do{
