@@ -159,10 +159,10 @@ void GotoLine(fstream& file, unsigned int num){
 
 int main (void){
 
-  fstream in("hash.txt");
-  fstream out("hashout.txt", fstream::out);
+  fstream in("message.txt");
+  fstream out("msgout.txt", fstream::out);
 
-  int num_hashes = 4;
+  int num_hashes = 10;
   int start_line = 1;
   long long hashes[num_hashes];
 
@@ -203,10 +203,6 @@ int main (void){
         
       long hash1 = hashes[i];
       long hash2 = hashes[i+1];
-
-      // #pragma omp critical
-      // cout<<hash1<<" "<<hash2<<endl;
-
 
       characters(hash1, hash1_buffer);
       characters(hash2, hash2_buffer);
