@@ -25,6 +25,15 @@ void handleErrors(void)
   abort();
 }
 
+long long message_ds[2047];
+long long hash_ds[2047];
+
+long long one = 1;
+long long MAX = (long long) 1 << 32;
+
+
+
+
 int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *iv, unsigned char *ciphertext){
   EVP_CIPHER_CTX *ctx;
 
@@ -172,33 +181,18 @@ void GotoLine(fstream& file, unsigned int num){
     }
 }
 
-int main (void){
+int parent(int index)
+{
+  return (((one<<(11)) + index)/2);
+}
 
-  fstream in("message.txt");
-  fstream out("msgout2.txt", fstream::out);
-
-  int num_hashes = 1024;
-  int start_line = 1;
-  long long hashes[num_hashes];
-
-  // Seeking to specified line
-  GotoLine(in, start_line);
-
-  // Reading hashes from file and storing in array
-  long long hash;
-  for(int i = 0; i < num_hashes; i++){
-      in>>hash;
-      hashes[i] = hash;
-      cout<<hashes[i]<<endl;
-  }
-  long long one = 1;
-  long long MAX = (long long) 1 << 32;
-
+void construct(int num_hashes,int offset)
+{
   random_device mno;
   mt19937 rng(mno());
   uniform_int_distribution<mt19937::result_type> dist(0,MAX);
   
-  unsigned int mc = 1000;
+  
   // export OMP_NUM_THREADS=<number of threads to use>.
   #pragma omp parallel
   {
@@ -214,10 +208,10 @@ int main (void){
 
     // for each pair of hash
     #pragma omp for
-    for(int i = 0; i < num_hashes; i += 2){
+    for(int i = offset ; i < num_hashes; i += 2){
         
-      long hash1 = hashes[i];
-      long hash2 = hashes[i+1];
+      long hash1 = hash_ds[i];
+      long hash2 = hash_ds[i+1];
 
       to_chars(hash1, hash1_buffer);
       to_chars(hash2, hash2_buffer);
@@ -259,12 +253,19 @@ int main (void){
         if( res != msg1_map.end() ){
           
           // Write results to file -> hash1, message1, hash2, message2, colliding hash
+          //#pragma omp critical
+          //out<<hash1<<","<<res->second<<","<<hash2<<","<<msg2<<","<<final_hash_val<<endl;
           #pragma omp critical
-          out<<hash1<<","<<res->second<<","<<hash2<<","<<msg2<<","<<final_hash_val<<endl;
+          {
+            hash_ds[parent(i)] = final_hash_val;
+            message_ds[i] = res->second;
+            hash_ds[parent(i+1)] = final_hash_val;
+            message_ds[i+1] = msg2;
+            cout<<hash1<<","<<res->second<<","<<hash2<<","<<msg2<<","<<final_hash_val<<endl;
 
-          #pragma omp critical
-          cout<<hash1<<","<<res->second<<","<<hash2<<","<<msg2<<","<<final_hash_val<<endl;
-
+          }
+          //#pragma omp critical
+          
           break;
         }
         // else
@@ -285,6 +286,43 @@ int main (void){
     delete msg2_buffer;
     delete final_hash;
   }
+}
+
+
+
+int main (void){
+
+  fstream in("message.txt");
+  fstream out("msgout2.txt", fstream::out);
+
+  int num_hashes = 1024;
+  int start_line = 1;
+  int k = 10;
+
+
+  // Seeking to specified line
+  GotoLine(in, start_line);
+
+  // Reading hashes from file and storing in array
+  long long hash;
+  for(int i = 0; i < num_hashes; i++){
+      in>>hash;
+      hash_ds[i] = hash;
+      cout<<hash_ds[i]<<endl;
+    }
+  int offset = 0;
+  
+  for(int i = 0 ; i < k ; i++)
+  {
+    if(i!=0)
+    {
+      offset = offset + one<<(k-i+1);
+    }
+    construct(num_hashes,offset);
+    num_hashes = num_hashes/2;
+  }
+  
+  
   
   
 
