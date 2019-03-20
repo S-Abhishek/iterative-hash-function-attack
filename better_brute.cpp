@@ -186,11 +186,15 @@ int parent(int index)
   return (((one<<(11)) + index)/2);
 }
 
-void construct(int num_hashes,int offset)
+void construct(int num_hashes,int offset,int level)
 {
   random_device mno;
   mt19937 rng(mno());
   uniform_int_distribution<mt19937::result_type> dist(0,MAX);
+  
+  string filename = "msgouto"+to_string(level);
+  
+  fstream out(filename, fstream::out);
   
   
   // export OMP_NUM_THREADS=<number of threads to use>.
@@ -261,6 +265,7 @@ void construct(int num_hashes,int offset)
             message_ds[i] = res->second;
             message_ds[i+1] = msg2;
             cout<<hash1<<","<<res->second<<","<<hash2<<","<<msg2<<","<<final_hash_val<<endl;
+            out<<hash1<<","<<res->second<<","<<hash2<<","<<msg2<<","<<final_hash_val<<endl;
 
           }
           //#pragma omp critical
@@ -317,7 +322,7 @@ int main (void){
     {
       offset = offset + one<<(k-i+1);
     }
-    construct(num_hashes,offset);
+    construct(num_hashes,offset,i);
     num_hashes = num_hashes/2;
   }
   
