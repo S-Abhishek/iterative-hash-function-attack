@@ -208,10 +208,10 @@ void construct(int num_hashes,int offset)
 
     // for each pair of hash
     #pragma omp for
-    for(int i = offset ; i < num_hashes; i += 2){
+    for(int i = offset ; i < offset + num_hashes; i += 2){
         
-      long hash1 = hash_ds[i];
-      long hash2 = hash_ds[i+1];
+      long hash1 = hash_ds[offset+i];
+      long hash2 = hash_ds[offset+i+1];
 
       to_chars(hash1, hash1_buffer);
       to_chars(hash2, hash2_buffer);
@@ -259,7 +259,6 @@ void construct(int num_hashes,int offset)
           {
             hash_ds[parent(i)] = final_hash_val;
             message_ds[i] = res->second;
-            hash_ds[parent(i+1)] = final_hash_val;
             message_ds[i+1] = msg2;
             cout<<hash1<<","<<res->second<<","<<hash2<<","<<msg2<<","<<final_hash_val<<endl;
 
