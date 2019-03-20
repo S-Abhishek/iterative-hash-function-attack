@@ -110,7 +110,7 @@ void characters(long long b, unsigned char* str)
 void iterative_hash(unsigned char *plain_text, unsigned char *initial_hash, unsigned char *h0){
     
     int i;
-    int length_message = strlen((char *)plain_text);
+    int length_message = MSG_BLOCK;
     int no_of_blocks = length_message/MSG_BLOCK;
 
     unsigned char* iv = new unsigned char[16]();
