@@ -214,8 +214,8 @@ void construct(int num_hashes,int offset,int level)
     #pragma omp for
     for(int i = offset ; i < offset + num_hashes; i += 2){
         
-      long hash1 = hash_ds[offset+i];
-      long hash2 = hash_ds[offset+i+1];
+      long hash1 = hash_ds[i];
+      long hash2 = hash_ds[i+1];
 
       to_chars(hash1, hash1_buffer);
       to_chars(hash2, hash2_buffer);
