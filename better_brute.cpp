@@ -183,7 +183,7 @@ void GotoLine(fstream& file, unsigned int num){
 
 int parent(int index)
 {
-  return (((one<<(11)) + index)/2);
+  return (((one<<(10+1)) + index)/2);
 }
 
 void construct(int num_hashes,int offset,int level)
@@ -216,6 +216,9 @@ void construct(int num_hashes,int offset,int level)
         
       long hash1 = hash_ds[i];
       long hash2 = hash_ds[i+1];
+
+      #pragma omp critical
+      cout<<hash1<<" "<<hash2<<" "<<i<<" "<<i+1<<endl;
 
       to_chars(hash1, hash1_buffer);
       to_chars(hash2, hash2_buffer);
@@ -262,6 +265,7 @@ void construct(int num_hashes,int offset,int level)
           #pragma omp critical
           {
             hash_ds[parent(i)] = final_hash_val;
+            //cout<<parent(i)<<" "<<hash_ds[parent(i)]<<" hash value inserted"<<endl;
             message_ds[i] = res->second;
             message_ds[i+1] = msg2;
             cout<<hash1<<","<<res->second<<","<<hash2<<","<<msg2<<","<<final_hash_val<<endl;
@@ -320,8 +324,11 @@ int main (void){
   {
     if(i!=0)
     {
-      offset = offset + one<<(k-i+1);
+      //cout<<"before value "<<offset<<endl;
+      offset = offset + (one<<(k-i+1)); //Mistake here, it computed (offset + one)<<(k-i+1) instead of (offset) + (one<<(k-i+1))
+      //cout<<(one<<(k-i+1))<<"is added to offset "<<(k-i+1)<<" final value"<<offset<<endl;
     }
+    //cout<<offset<<" is the offset num of hashes: "<<num_hashes<<endl;
     construct(num_hashes,offset,i);
     num_hashes = num_hashes/2;
   }
