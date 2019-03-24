@@ -193,20 +193,20 @@ int main (void){
   long long hash_ds[num_hashes];
   long long msg_ds[num_hashes];
 
-  long long hash, msg;
+  long long hash, mesg;
 
   for(int i = 0; i < num_hashes; i++){
       in>>hash;
-      min>>msg;
+      min>>mesg;
 
       hash_ds[i] = hash;
-      msg_ds[i] = msg;
+      msg_ds[i] = mesg;
       hash_set.insert(hash);
   }
 
   in.close();
   min.close();
-  
+
   unsigned char* msg = (unsigned char*)"Hello there, This is the real message."
     "The undiscovered country from whose bourn no traveler returns."
     "As flies to wanton boys, are we to the gods; they kill us for their sport."
