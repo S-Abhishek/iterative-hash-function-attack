@@ -1,0 +1,11 @@
+  unsigned char* msg = (unsigned char*)"Hello there, This is the real message."
+    "The undiscovered country from whose bourn no traveler returns."
+    "As flies to wanton boys, are we to the gods; they kill us for their sport."
+    "If you can look into the seeds of time, and say which grain will grow and which will not, speak then 
+unto me.";
+
+  int len = strlen((char*)msg);
+  int newlen = padded_length(len + GLUE_SIZE, MSG_BLOCK);
+  bool found = false;
+  long long found_glue = 1075789913;
+  long long found_hash = 3459078045;

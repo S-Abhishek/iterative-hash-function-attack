@@ -19,7 +19,7 @@ using namespace std;
 #define COMPARISON_BATCH 1024
 #define GLUE_SIZE 4
 
-#define K 16
+#define K 10
 
 void handleErrors(void)
 {
@@ -210,7 +210,8 @@ int main (void){
   unsigned char* msg = (unsigned char*)"Hello there, This is the real message."
     "The undiscovered country from whose bourn no traveler returns."
     "As flies to wanton boys, are we to the gods; they kill us for their sport."
-    "If you can look into the seeds of time, and say which grain will grow and which will not, speak then unto me.";
+    "If you can look into the seeds of time, and say which grain will grow and which will not, speak then unto me."
+    "Look at the moon and at the sun";
 
   int len = strlen((char*)msg);
   int newlen = padded_length(len + GLUE_SIZE, MSG_BLOCK);
@@ -221,12 +222,13 @@ int main (void){
   #pragma omp parallel
   {
     // Initiaze buffers for each thread here
+
+    // Initial hash = 0
     unsigned char* hash1_buffer = new unsigned char[HASH_SIZE]();
     unsigned char* padded_msg = new unsigned char[newlen];
     pad(msg, len + GLUE_SIZE, MSG_BLOCK, padded_msg);
 
     unsigned char* final_hash = new unsigned char[HASH_SIZE]();
-    unsigned char* glue_buffer = new unsigned char[GLUE_SIZE]();
 
     #pragma omp for
     for( long long j = 0; j < (one << 32); j++)
@@ -257,7 +259,38 @@ int main (void){
       }
     }
 
-
   }
   
+  // Find index of hash
+  uint index = -1;
+  for(int i = 0; i < num_hashes; i++){
+    if(hash_ds[i] == found_hash)
+      index = i;
+  }
+
+  uint level = index / (one << 10);
+  
+  // Old msg + glue + m1 + m2 . . . 
+  int final_len = newlen + GLUE_SIZE +  (10 - 1 - level)*MSG_BLOCK;
+  unsigned char* newmsg = new unsigned char[final_len];
+  
+  copy(msg, msg + len, newmsg);
+  pad(msg, len + GLUE_SIZE, MSG_BLOCK, newmsg);
+  to_chars(found_glue, newmsg + len);
+
+  int i = 0;
+  while(index < (one << 10 + 1) - 2){
+    to_chars(msg_ds[index], newmsg + newlen + (i++)*MSG_BLOCK);
+    index = parent(index);
+  }  
+
+  
+  unsigned char* final_hash = new unsigned char[HASH_SIZE]();
+  unsigned char* initial_hash = new unsigned char[HASH_SIZE]();
+
+  iterative_hash(newmsg, final_len, initial_hash, final_hash);
+  cout<<"The new message"<<endl;
+  BIO_dump_fp (stdout, (const char *)newmsg, final_len);
+  cout<<endl<<"The final hash "<<to_long(final_hash)<<endl;
+
 }
