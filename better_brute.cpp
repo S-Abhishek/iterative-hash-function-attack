@@ -332,6 +332,16 @@ int main (void){
     construct(num_hashes,offset,i);
     num_hashes = num_hashes/2;
   }
+  fstream out1("hash_ds.txt", fstream::out);
+  fstream out2("msg_ds.txt", fstream::out);
+
+  for(int i = 0 ; i < 2048 ; i++)
+  {
+    out1<<hash_ds[i]<<endl;
+    out2<<message_ds[i]<<endl;
+  }
+  
+  
   
   
   
