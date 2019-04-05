@@ -207,12 +207,7 @@ int main (void){
   in.close();
   min.close();
 
-  unsigned char* msg = (unsigned char*)"Hello there, This is the real message."
-    "The undiscovered country from whose bourn no traveler returns."
-    "As flies to wanton boys, are we to the gods; they kill us for their sport."
-    "If you can look into the seeds of time, and say which grain will grow and which will not, speak then unto me."
-    "Look at the moon and at the sun";
-
+  unsigned char* msg = (unsigned char*)"aaaaaaaaa, aaaa,a a ,a,,aaaaaaaaaaaa,  a,aaaaaaaaaaa,aa ";
   int len = strlen((char*)msg);
   int newlen = padded_length(len + GLUE_SIZE, MSG_BLOCK);
   bool found = false;
@@ -250,7 +245,7 @@ int main (void){
       if( res != hash_set.end() ){
           #pragma omp critical
           {
-              cout<<glue<<" "<<*res<<endl;
+              cout<<"Glue found :"<<glue<<", hashes to "<<*res<<endl;
               found_glue = glue;
               found_hash = final_hash_val;
           }
@@ -278,19 +273,21 @@ int main (void){
   pad(msg, len + GLUE_SIZE, MSG_BLOCK, newmsg);
   to_chars(found_glue, newmsg + len);
 
+  unsigned char* final_hash = new unsigned char[HASH_SIZE]();
+  unsigned char* initial_hash = new unsigned char[HASH_SIZE]();
   int i = 0;
+  
   while(index < (one << 10 + 1) - 2){
-    to_chars(msg_ds[index], newmsg + newlen + (i++)*MSG_BLOCK);
+    to_chars(msg_ds[index], newmsg + newlen + i*MSG_BLOCK);
+    iterative_hash(newmsg, newlen + (i+1)*MSG_BLOCK, initial_hash, final_hash);
+    cout<<"Adding message block "<<msg_ds[index]<<", New hash :"<<to_long(final_hash)<<endl;
+    i++;
     index = parent(index);
   }  
 
-  
-  unsigned char* final_hash = new unsigned char[HASH_SIZE]();
-  unsigned char* initial_hash = new unsigned char[HASH_SIZE]();
-
-  iterative_hash(newmsg, final_len, initial_hash, final_hash);
+  cout<<endl<<"Final message length : "<<newlen + i*MSG_BLOCK<<endl;
+  iterative_hash(newmsg, newlen + i*MSG_BLOCK, initial_hash, final_hash);
   cout<<"The new message"<<endl;
-  BIO_dump_fp (stdout, (const char *)newmsg, final_len);
+  BIO_dump_fp (stdout, (const char *)newmsg, newlen + i*MSG_BLOCK);
   cout<<endl<<"The final hash "<<to_long(final_hash)<<endl;
-
 }
