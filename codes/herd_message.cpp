@@ -184,8 +184,8 @@ int parent(int index)
 
 int main (void){
 
-  fstream in("hash_ds.txt");
-  fstream min("msg_ds.txt");
+  fstream in("data/hash_ds.txt");
+  fstream min("data/msg_ds.txt");
 
   int num_hashes = 2047;
 
@@ -207,7 +207,7 @@ int main (void){
   in.close();
   min.close();
 
-  unsigned char* msg = (unsigned char*)"aaaaaaaaa, aaaa,a a ,a,,aaaaaaaaaaaa,  a,aaaaaaaaaaa,aa ";
+  unsigned char* msg = (unsigned char*)"Hello there, This is Johnathan. This is an important message. Please keep this safe";
   int len = strlen((char*)msg);
   int newlen = padded_length(len + GLUE_SIZE, MSG_BLOCK);
   bool found = false;

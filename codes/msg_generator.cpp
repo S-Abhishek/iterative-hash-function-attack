@@ -6,11 +6,11 @@ using namespace std;
 
 int main()
 {
-    ofstream msgfile("message.txt");
+    ofstream msgfile("data/hashes.txt");
     
 
     long long NO_OF_MSGS = (long long) 1 << 10;
-    long long MAX = (long long) 1 << 16;
+    long long MAX = (long long) 1 << 32;
     //long long ad = 4194304;
     
     //long long array[1024];

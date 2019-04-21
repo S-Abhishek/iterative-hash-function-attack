@@ -192,7 +192,7 @@ void construct(int num_hashes,int offset,int level)
   mt19937 rng(mno());
   uniform_int_distribution<mt19937::result_type> dist(0,MAX);
   
-  string filename = "msgouto"+to_string(level);
+  string filename = "data/msgouto"+to_string(level);
   
   fstream out(filename, fstream::out);
   
@@ -300,8 +300,8 @@ void construct(int num_hashes,int offset,int level)
 
 int main (void){
 
-  fstream in("message.txt");
-  fstream out("msgout2.txt", fstream::out);
+  fstream in("data/hashes.txt");
+  fstream out("data/msgout2.txt", fstream::out);
 
   int num_hashes = 1024;
   int start_line = 1;
@@ -332,8 +332,8 @@ int main (void){
     construct(num_hashes,offset,i);
     num_hashes = num_hashes/2;
   }
-  fstream out1("hash_ds.txt", fstream::out);
-  fstream out2("msg_ds.txt", fstream::out);
+  fstream out1("data/hash_ds.txt", fstream::out);
+  fstream out2("data/msg_ds.txt", fstream::out);
 
   for(int i = 0 ; i < 2048 ; i++)
   {
