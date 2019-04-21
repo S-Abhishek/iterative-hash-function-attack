@@ -1,14 +1,21 @@
 I. Necessary apt packages (linux)
+
 	1. libopenmp-dev (For multithreading)
 	2. libssl-dev    (For Crypto functions)
 
+
+
 II. Compilation flags
-g++ file.cpp -lssl -lcrypto -fopenmp
+
+	g++ file.cpp -lssl -lcrypto -fopenmp
+
 
 III. Set 'n' number of threads
+
 	export OMP_NUM_THREADS=n
 
 IV. Steps
+
 	1. Create a folder data in working directory (codes)
 	
 	2. Generate random 2^K hashes
